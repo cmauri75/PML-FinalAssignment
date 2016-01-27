@@ -29,17 +29,15 @@ The data for this project come from this source: http://groupware.les.inf.puc-ri
 #Project Intended Results
 The goal of your project is to predict the “classe” variable in the test set. You may use any of the other variables to predict with. 
 
-#Reproduceablity
+#Reproduciblity
 In order to reproduce the same results you need a set of packages and download the test and dataset
 *Note:To install, for instance, the caret package in R, run this command: install.packages(“caret”)
 
 Packages load:
 ```{r}
 library(caret)
-library(rattle)
 library(rpart.plot)
 library(randomForest)
-library(gbm)
 ```
 
 
@@ -58,12 +56,11 @@ training = read.csv("pml-training.csv",na.strings = c("#DIV/0!","NA",""))
 testing = read.csv("pml-testing.csv",na.strings = c("#DIV/0!","NA",""))
 ```
 
-Read some informations about data (not mandatory)
-```{r}
-head(training)
+Read some informations about data, users and classes
+```{r, echo=FALSE}
+#head(training)
 table(training$user_name)
-str(training)
-
+#str(training)
 table(training$classe)
 ```
 
