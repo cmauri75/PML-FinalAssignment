@@ -1,0 +1,151 @@
+---
+title: "Practical Machine Learning Course - Final Project Assignment"
+output: html_document
+---
+
+This file has been prepared during homework assignment of Coursera’s MOOC Practical Machine Learning from Johns Hopkins University. More information here https://www.coursera.org/learn/practical-machine-learning
+
+This script has been prepared, tested and executed on Windows10, R Studio Version 0.99.491 R Version 3.2.3 in 2015.01.27
+
+Developer: Cesare Mauri
+
+GitHub repo: https://github.com/cmauri75/PML-FinalAssignment
+
+#Background
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+
+#Data
+
+The training data for this project are available here:
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+
+The test data are available here:
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+Copy of data are present in current GitHub Repo
+
+The data for this project come from this source: http://groupware.les.inf.puc-rio.br/har. If you use the document you create for this class for any purpose please cite them as they have been very generous in allowing their data to be used for this kind of assignment.
+
+#Project Intended Results
+The goal of your project is to predict the “classe” variable in the test set. You may use any of the other variables to predict with. 
+
+#Reproduceablity
+In order to reproduce the same results you need a set of packages and download the test and dataset
+*Note:To install, for instance, the caret package in R, run this command: install.packages(“caret”)
+
+Packages load:
+```{r}
+library(caret)
+library(rattle)
+library(rpart.plot)
+library(randomForest)
+library(gbm)
+```
+
+
+Initial settings
+```{r}
+rm(list=ls(all=TRUE))
+#setwd("C:/TInvention/DataScience/DS8-MachineLearning")
+set.seed(16)
+```
+
+#Getting and cleaning data
+I as been already downloaded, so I load it paying attention to all NA values
+
+```{r}
+training = read.csv("pml-training.csv",na.strings = c("#DIV/0!","NA",""))
+testing = read.csv("pml-testing.csv",na.strings = c("#DIV/0!","NA",""))
+```
+
+Read some informations about data (not mandatory)
+```{r}
+head(training)
+table(training$user_name)
+str(training)
+
+table(training$classe)
+```
+
+Many columns in testing dataset contains only NA or single values, I get the index of these columns and remove from training and testing dataset because these are non usefull for prediction
+```{r}
+rem <- c();
+for (i in 1:length(testing)) {
+    if(length(table(testing[,i])) <= 1) rem = c(rem,i)
+}
+
+training <- training [,-rem]
+testing <- testing [,-rem]
+```
+
+I also remove first six colums, because contains anagrafic data and timestamp, also not usefull for prediction.
+```{r}
+rem2 <- c(1,2,3,4,5,6)
+training <- training [,-rem2]
+testing <- testing [,-rem2]
+```
+
+#Analizing data
+Now i split test datasets in two part, first for training & second to test the validity of my model
+
+```{r}
+inTrain = createDataPartition(training$classe, p = 0.8)[[1]]
+train = training[ inTrain,]
+valid = training[-inTrain,]
+```
+
+Initially I've used caret package but it has poor performance in tpart and it take huge amount of time for better algoritms, so I've used other library
+```{r}
+#create rpart with caret, it works bad
+##modelRpart2 <- train(classe ~ ., method = "rpart", data=train)
+##rpart.plot(modelRpart2$finalModel,under=TRUE)
+##predrp2 <- predict(modelRpart2,newdata = valid)
+##confusionMatrix(predrp2, valid$classe)$overall['Accuracy']
+
+#create random forest with caret, too long
+##modelRf <- train(classe ~ .,method = "rf", data=train)
+##getTree(modelRf$finalModel,k=2)
+##predRf <- predict(modelRf,newdata = valid)
+##confusionMatrix(predRf, valid$classe)$overall['Accuracy']
+
+#create boosting with caret, too long
+##modB <- train(classe ~ ., method="gbm",data=train,verbose=FALSE)
+##predB <- predict(modB,newdata = valid)
+##confusionMatrix(predB, valid$classe)$overall['Accuracy']
+```
+
+I train my rpart model using training data and check accuracy against validation data
+```{r}
+#rpart
+modF <- rpart(classe ~. , data=train)
+predF <- predict(modF, valid, type = "class")
+confusionMatrix(predF, valid$classe)$overall['Accuracy']
+```
+About 75% Accuracy, not bad
+
+This is the decisional tree
+```{r, echo=FALSE}
+rpart.plot(modF,under=TRUE)
+```
+
+Now I try random forest algoritm
+```{r}
+modRf <- randomForest(classe ~. , data=train)
+predRf <- predict(modRf, valid, type = "class")
+cm <- confusionMatrix(predRf, valid$classe)
+cm$overall['Accuracy']
+```
+>99% Accuracy! Very good, this model is good enough for my porpoise
+
+This is the confusion matrix
+```{r}
+cm
+```
+Errors are very few.
+
+#Final prediction
+Now I can predict my testing data against second model and obtain wanted exercise result
+```{r}
+pred <- predict(modRf, testing, type = "class")
+pred
+```
