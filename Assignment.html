@@ -132,7 +132,7 @@ testing &lt;- testing [,-rem2]</code></pre>
 </div>
 <div id="analizing-data" class="section level1">
 <h1>Analizing data</h1>
-<p>Now i split test datasets in two part, first for training &amp; second to test the validity of my model</p>
+<p>Now i split test datasets in two part, first for training &amp; second to test the validity of my model and making cross validation</p>
 <pre class="r"><code>inTrain = createDataPartition(training$classe, p = 0.8)[[1]]
 train = training[ inTrain,]
 valid = training[-inTrain,]</code></pre>
@@ -170,7 +170,7 @@ cm$overall['Accuracy']</code></pre>
 <pre><code>##  Accuracy 
 ## 0.9933724</code></pre>
 <blockquote>
-<p>99% Accuracy! Very good, this model is good enough for my porpoise</p>
+<p>99% Accuracy! Very good, this model is good enough for my porpoise.</p>
 </blockquote>
 <p>This is the confusion matrix</p>
 <pre class="r"><code>cm</code></pre>
@@ -205,11 +205,8 @@ cm$overall['Accuracy']</code></pre>
 ## Detection Rate         0.2840   0.1932   0.1736   0.1598   0.1828
 ## Detection Prevalence   0.2842   0.1940   0.1777   0.1614   0.1828
 ## Balanced Accuracy      0.9989   0.9989   0.9953   0.9866   0.9972</code></pre>
-<p>Errors are very few.</p>
-</div>
-<div id="final-prediction" class="section level1">
-<h1>Final prediction</h1>
-<p>Now I can predict my testing data against second model and obtain wanted exercise result</p>
+<p>Errors are very few. 24 errors out of 3923 observations means an out of error &lt; 0.6%</p>
+<p>sum(cm) #Final prediction Now I can predict my testing data against second model and obtain wanted exercise result</p>
 <pre class="r"><code>pred &lt;- predict(modRf, testing, type = &quot;class&quot;)
 pred</code></pre>
 <pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 

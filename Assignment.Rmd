@@ -83,7 +83,7 @@ testing <- testing [,-rem2]
 ```
 
 #Analizing data
-Now i split test datasets in two part, first for training & second to test the validity of my model
+Now i split test datasets in two part, first for training & second to test the validity of my model and making cross validation
 
 ```{r}
 inTrain = createDataPartition(training$classe, p = 0.8)[[1]]
@@ -132,14 +132,15 @@ predRf <- predict(modRf, valid, type = "class")
 cm <- confusionMatrix(predRf, valid$classe)
 cm$overall['Accuracy']
 ```
->99% Accuracy! Very good, this model is good enough for my porpoise
+>99% Accuracy! Very good, this model is good enough for my porpoise.
 
 This is the confusion matrix
 ```{r}
 cm
 ```
-Errors are very few.
+Errors are very few. 24 errors out of 3923 observations means an out of error < 0.6%
 
+sum(cm)
 #Final prediction
 Now I can predict my testing data against second model and obtain wanted exercise result
 ```{r}
